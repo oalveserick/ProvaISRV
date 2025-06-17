@@ -1,0 +1,52 @@
+services:
+  web:
+    build: .
+    container_name: web_aval
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - rede_aval
+    restart: always
+  
+  db:
+    image: mysql:8.0
+    container_name: db_aval
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aval_acao
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rede_aval
+    restart: always
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: admin_aval
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: user
+      PMA_PASSWORD: pass
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - rede_aval
+    restart: always
+  
+volumes:
+  mysql_data:
+
+networks:
+  rede_aval:
+    driver: bridge
